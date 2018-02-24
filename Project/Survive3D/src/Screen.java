@@ -13,6 +13,7 @@ import java.util.Arrays;
  */
 public class Screen {
     private int width ,  height;
+    private int time = 0;
     public int[] pixels;
     public Screen(int width , int height){
         this.width = width;
@@ -20,9 +21,13 @@ public class Screen {
     }
     public void drawImage(int[] pixels)
     {
+        ++time;
+        if(time > 500){
+            time = 0;
+        }
         for(int i = 0; i < height; ++i){
             for(int j = 0; j < width; ++j){
-                pixels[j + i * width] = 0xff00ff;
+                pixels[time + i + time * width] = 0xff00ff;  
             }
         }
     }

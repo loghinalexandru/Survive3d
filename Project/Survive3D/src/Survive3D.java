@@ -25,6 +25,9 @@ import javax.swing.JFrame;
 public class Survive3D extends JFrame implements Runnable {
     
     	private static final long serialVersionUID = 1L;
+        private static final String gameTitle = "Survive3D";
+        private final int width = 1280;
+        private final int height = 720; 
         private Screen screen;
         public static int fps = 0;
 	public int mapWidth = 15;
@@ -55,23 +58,24 @@ public class Survive3D extends JFrame implements Runnable {
     public Survive3D()
     {
                 thread = new Thread(this);
-		image = new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-		setSize(640, 480);
+		setSize(this.width, this.height);
 		setResizable(false);
-                screen = new Screen(640 , 480);
-		setTitle("3D Engine");
+                screen = new Screen(image.getWidth(), image.getHeight());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                setTitle(gameTitle);
 		setBackground(Color.black);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		start();
     }
     
 public void run() {
 	long lastTime = System.nanoTime();
+        long timer = System.currentTimeMillis();
 	final double ns = 1000000000.0 / 60.0;
 	double delta = 0;
+        int frames = 0;
 	requestFocus();
 	while(running) {
 		long now = System.nanoTime();
@@ -79,20 +83,21 @@ public void run() {
 		lastTime = now;
 		while (delta >= 1)
 		{
+                        ++frames;
 			delta--;
 		}
 		render();
+                if(System.currentTimeMillis() - timer > 1000){
+                    timer += 1000;
+                    this.setTitle(gameTitle + " | " + "fps : " + frames);
+                    frames = 0;
+                }
 	}
 }
     
     public synchronized void start()
     {
         this.running = true;
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Survive3D.class.getName()).log(Level.SEVERE, null, ex);
-                }
         thread.start();
     }
     
@@ -115,6 +120,7 @@ public void run() {
             createBufferStrategy(3);
             return;
         }
+       // screen.clearImage(pixels);
         screen.drawImage(pixels);
         Graphics g = buff.getDrawGraphics();
         g.drawImage(image , 0 , 0 , image.getWidth() , image.getHeight() , null);
@@ -125,6 +131,21 @@ public void run() {
     
     public static void main(String[] args) {
         Survive3D game = new Survive3D();
+        game.start();
+        System.out.println("I am the main thread , i created thread t1 and had it execute run method, which is currently looping for i to 1000000");
+        
     }
     
+}
+
+
+class testThread implements Runnable{
+
+ public void run()
+ {
+     for(int i=0;i<1000000;i++){} //a simple delay block to clarify.
+
+     System.out.println("I am done executing run method of testThread");
+
+ }  
 }
